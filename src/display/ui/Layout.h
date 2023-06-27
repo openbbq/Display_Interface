@@ -4,13 +4,13 @@
 
 namespace display::ui
 {
-    class Layout : public ParentWindow, public enable_shared_create<Layout>
+    class Layout : public ParentWindow
     {
     public:
         using ParentWindow::ParentWindow; // inherits constructors
 
-        // template <typename... _Args>
-        // static std::shared_ptr<LayoutWindow> create(_Args &&...__args) { return std::make_shared<LayoutWindow>(std::forward<_Args>(__args)...); }
+        template <typename... _Args>
+        static std::shared_ptr<Layout> create(_Args &&...__args) { return std::make_shared<Layout>(std::forward<_Args>(__args)...); }
 
         struct Entry
         {

@@ -65,7 +65,7 @@ namespace display
         void touchUp(const Point &value) override;
 
     private:
-        void apply_viewport(WindowContext *context, WindowPtr window);
+        void apply_viewport(InterfaceContext *context, WindowPtr window);
 
         Region _invalid;
         WindowPtr _screen;

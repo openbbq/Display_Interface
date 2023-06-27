@@ -1,13 +1,13 @@
 #pragma once
 
-#include "WindowContext.h"
+#include "InterfaceContext.h"
 #include "Coords.h"
 #include "Style.h"
 #include "Region.h"
 
 namespace display
 {
-    class DrawContext : public WindowContextBase
+    class DrawContext : public InterfaceContextBase
     {
     public:
         virtual ~DrawContext() = default;

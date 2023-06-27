@@ -1,11 +1,11 @@
 #include <Arduino.h>
-#include "WindowContext.h"
+#include "InterfaceContext.h"
 
 namespace display
 {
-    WindowContext::PriorViewport WindowContextBase::enter_viewport(const Rect &viewport)
+    InterfaceContext::PriorViewport InterfaceContextBase::enterViewport(const Rect &viewport)
     {
-        WindowContext::PriorViewport prior = {origin(), extent()};
+        InterfaceContext::PriorViewport prior = {origin(), extent()};
 
         Rect frame = viewport.offset(prior.origin);
         origin(frame.origin());
@@ -13,7 +13,7 @@ namespace display
         return prior;
     }
 
-    void WindowContextBase::restore_viewport(const PriorViewport &prior)
+    void InterfaceContextBase::restoreViewport(const PriorViewport &prior)
     {
         origin(prior.origin);
         extent(prior.extent);

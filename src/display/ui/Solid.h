@@ -1,19 +1,17 @@
 #pragma once
 
-#include "Solid.h"
-
 namespace display::ui
 {
-    class Solid : public BaseWindow
+    class Solid : public WindowBase
     {
     public:
-        using BaseWindow::BaseWindow; // inherits constructors
+        using WindowBase::WindowBase; // inherits constructors
 
-        Solid(StylePtr style, const Rect& pos) : BaseWindow(style) { position(pos); }
+        Solid(StylePtr style, const Rect& pos) : WindowBase(style) { position(pos); }
 
         void drawHandler(DrawContext *dc) override
         {
-            BaseWindow::drawHandler(dc);
+            WindowBase::drawHandler(dc);
 
             Rect rc = content();
             dc->draw(rc, background());

@@ -13,31 +13,34 @@ namespace display
         }
     }
 
-    Interface *BaseWindow::interface() const
+    Interface *WindowBase::interface() const
     {
         WindowPtr ptr = parent();
         return ptr ? ptr->interface() : nullptr;
     }
 
-    void BaseWindow::invalidate()
+    void WindowBase::invalidate()
     {
-        Interface *ptr = interface();
-        if (ptr)
-        {
-            ptr->invalidate(shared_from_this());
-        }
-    }
-    
-    void BaseWindow::invalidate(const Rect &rc)
-    {
-        Interface *ptr = interface();
-        if (ptr)
-        {
-            ptr->invalidate(shared_from_this(), rc);
-        }
+        invalidate(size());
     }
 
-    void BaseWindow::parent(WindowPtr value)
+    void WindowBase::invalidate(const Rect &rc)
+    {
+        if (hidden())
+        {
+            return;
+        }
+
+        Interface *ptr = interface();
+        if (!ptr)
+        {
+            return;
+        }
+
+        ptr->invalidate(shared_from_this(), rc);
+    }
+
+    void WindowBase::parent(WindowPtr value)
     {
         auto prior = _parent.lock();
         if (prior == value)
@@ -46,11 +49,11 @@ namespace display
         }
         if (value)
         {
-            value->attach(shared_from_this());
+            value->attachHandler(shared_from_this());
         }
         if (prior)
         {
-            prior->detach(shared_from_this());
+            prior->detachHandler(shared_from_this());
         }
 
         invalidate();
@@ -58,12 +61,12 @@ namespace display
         invalidate();
     }
 
-    bool BaseWindow::touchCapture() const
+    bool WindowBase::touchCapture() const
     {
         return interface()->touchCapture().get() == this;
     }
 
-    void BaseWindow::touchCapture(bool value)
+    void WindowBase::touchCapture(bool value)
     {
         if (value)
         {
@@ -75,7 +78,7 @@ namespace display
         }
     }
 
-    void BaseWindow::touchRelease()
+    void WindowBase::touchRelease()
     {
         if (touchCapture())
         {
@@ -83,19 +86,19 @@ namespace display
         }
     }
 
-    void ParentWindow::attach(WindowPtr child)
+    void ParentWindow::attachHandler(WindowPtr child)
     {
-        adjusting(true);
+        resizing(true);
         _children.push_back(std::move(child));
     }
 
-    void ParentWindow::detach(WindowPtr child)
+    void ParentWindow::detachHandler(WindowPtr child)
     {
         for (auto it = _children.begin(); it != _children.end(); ++it)
         {
             if (child == *it)
             {
-                adjusting(true);
+                resizing(true);
                 _children.erase(it);
                 return;
             }
@@ -105,7 +108,7 @@ namespace display
 
     void ParentWindow::loopHandler()
     {
-        BaseWindow::loopHandler();
+        WindowBase::loopHandler();
 
         for (auto it = _children.begin(); it != _children.end(); ++it)
         {
@@ -115,14 +118,14 @@ namespace display
 
     void ParentWindow::drawHandler(DrawContext *dc)
     {
-        BaseWindow::drawHandler(dc);
+        WindowBase::drawHandler(dc);
 
         for (auto it = _children.rbegin(); it != _children.rend(); ++it)
         {
             auto w = it->get();
-            auto prior = dc->enter_viewport(w->position());
+            auto prior = dc->enterViewport(w->position());
             w->drawHandler(dc);
-            dc->restore_viewport(prior);
+            dc->restoreViewport(prior);
         }
     }
 
@@ -131,15 +134,15 @@ namespace display
         for (auto it = _children.rbegin(); it != _children.rend(); ++it)
         {
             auto w = it->get();
-            auto prior = tc->enter_viewport(w->position());
+            auto prior = tc->enterViewport(w->position());
             bool handled = w->touchDownHandler(tc);
-            tc->restore_viewport(prior);
+            tc->restoreViewport(prior);
             if (handled)
             {
                 return true;
             }
         }
-        return BaseWindow::touchDownHandler(tc);
+        return WindowBase::touchDownHandler(tc);
     }
 
     bool ParentWindow::touchMoveHandler(TouchContext *tc)
@@ -147,15 +150,15 @@ namespace display
         for (auto it = _children.rbegin(); it != _children.rend(); ++it)
         {
             auto w = it->get();
-            auto prior = tc->enter_viewport(w->position());
+            auto prior = tc->enterViewport(w->position());
             bool handled = w->touchMoveHandler(tc);
-            tc->restore_viewport(prior);
+            tc->restoreViewport(prior);
             if (handled)
             {
                 return true;
             }
         }
-        return BaseWindow::touchMoveHandler(tc);
+        return WindowBase::touchMoveHandler(tc);
     }
 
     bool ParentWindow::touchUpHandler(TouchContext *tc)
@@ -163,14 +166,14 @@ namespace display
         for (auto it = _children.rbegin(); it != _children.rend(); ++it)
         {
             auto w = it->get();
-            auto prior = tc->enter_viewport(w->position());
+            auto prior = tc->enterViewport(w->position());
             bool handled = w->touchUpHandler(tc);
-            tc->restore_viewport(prior);
+            tc->restoreViewport(prior);
             if (handled)
             {
                 return true;
             }
         }
-        return BaseWindow::touchUpHandler(tc);
+        return WindowBase::touchUpHandler(tc);
     }
 }

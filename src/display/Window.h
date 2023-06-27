@@ -12,15 +12,14 @@ namespace display
 {
     class Interface;
     class Window;
-    class BaseWindow;
 
-    template <typename TWindow>
-    class enable_shared_create
-    {
-    public:
-        template <typename... _Args>
-        static std::shared_ptr<TWindow> create(_Args &&...__args) { return std::make_shared<TWindow>(std::forward<_Args>(__args)...); }
-    };
+    // template <typename TWindow>
+    // class enable_shared_create
+    // {
+    // public:
+    //     template <typename... _Args>
+    //     static std::shared_ptr<TWindow> create(_Args &&...__args) { return std::make_shared<TWindow>(std::forward<_Args>(__args)...); }
+    // };
 
     typedef std::shared_ptr<Window> WindowPtr;
 
@@ -80,8 +79,8 @@ namespace display
         virtual void pressed(bool value) = 0;
 
         // true - resizeHandler must be called in next loop
-        virtual bool adjusting() const = 0;
-        virtual void adjusting(bool value) = 0;
+        virtual bool resizing() const = 0;
+        virtual void resizing(bool value) = 0;
 
         virtual bool touchCapture() const = 0;
         virtual void touchCapture(bool value) = 0;
@@ -90,6 +89,8 @@ namespace display
         virtual const String &text() const = 0;
         virtual void text(const String &value) = 0;
 
+        virtual void attachHandler(WindowPtr child) = 0;
+        virtual void detachHandler(WindowPtr child) = 0;
         virtual void loopHandler() = 0;
         virtual void drawHandler(DrawContext *dc) = 0;
         virtual void resizeHandler() = 0;
@@ -106,22 +107,17 @@ namespace display
             auto s = style();
             return s ? s->background() : 0;
         }
-
-    private:
-        friend class BaseWindow;
-        virtual void attach(WindowPtr child) = 0;
-        virtual void detach(WindowPtr child) = 0;
     };
 
-    class BaseWindow : public Window
+    class WindowBase : public Window
     {
     public:
-        BaseWindow() {}
-        BaseWindow(StylePtr style) : _style(style) {}
+        WindowBase() {}
+        WindowBase(StylePtr style) : _style(style) {}
 
         Interface *interface() const override;
         void invalidate() override;
-        void invalidate(const Rect& rc) override;
+        void invalidate(const Rect &rc) override;
 
         WindowPtr parent() const override { return _parent.lock(); }
         void parent(WindowPtr value) override;
@@ -150,7 +146,7 @@ namespace display
             invalidate();
             if (prior != _position.size())
             {
-                adjusting(true);
+                resizing(true);
             }
         }
 
@@ -161,12 +157,26 @@ namespace display
         {
             if (_hidden != value)
             {
+                if (!_hidden)
+                {
+                    invalidate();
+                }
                 _hidden = value;
-                invalidate();
+                if (!_hidden)
+                {
+                    invalidate();
+                }
             }
         }
         bool disabled() const override { return _disabled; }
-        void disabled(bool value) override { _disabled = value; }
+        void disabled(bool value) override
+        {
+            if (_disabled != value)
+            {
+                _disabled = value;
+                invalidate();
+            }
+        }
         bool toggled() const override { return _toggled; }
         void toggled(bool value) override
         {
@@ -187,11 +197,14 @@ namespace display
                 invalidate();
             }
         }
-        bool adjusting() const override { return _adjusting; }
-        void adjusting(bool value) override
+        bool resizing() const override { return _resizing; }
+        void resizing(bool value) override
         {
-            log_v("_adjusting set to %d", value);
-            _adjusting = value;
+            if (_resizing != value)
+            {
+                log_v("set to %d", value);
+                _resizing = value;
+            }
         }
 
         bool touchCapture() const override;
@@ -208,9 +221,9 @@ namespace display
 
         void loopHandler() override
         {
-            if (adjusting())
+            if (resizing())
             {
-                adjusting(false);
+                resizing(false);
                 resizeHandler();
             }
         }
@@ -223,10 +236,10 @@ namespace display
         bool touchUpHandler(TouchContext *tc) override { return false; }
 
     protected:
-        void attach(WindowPtr child) override
+        void attachHandler(WindowPtr child) override
         { /*invalid*/
         }
-        void detach(WindowPtr child) override
+        void detachHandler(WindowPtr child) override
         { /*invalid*/
         }
 
@@ -240,13 +253,13 @@ namespace display
         bool _toggled : 1 = false;
         bool _focused : 1 = false;
         bool _pressed : 1 = false;
-        bool _adjusting : 1 = false;
+        bool _resizing : 1 = false;
     };
 
-    class ParentWindow : public BaseWindow
+    class ParentWindow : public WindowBase
     {
     public:
-        using BaseWindow::BaseWindow; // inherits constructors
+        using WindowBase::WindowBase; // inherits constructors
 
         void loopHandler() override;
         void drawHandler(DrawContext *dc) override;
@@ -255,8 +268,8 @@ namespace display
         bool touchUpHandler(TouchContext *tc) override;
 
     protected:
-        void attach(WindowPtr child) override;
-        void detach(WindowPtr child) override;
+        void attachHandler(WindowPtr child) override;
+        void detachHandler(WindowPtr child) override;
         const std::vector<WindowPtr> &children() const { return _children; }
 
     private:

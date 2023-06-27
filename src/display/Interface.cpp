@@ -24,7 +24,7 @@ namespace display
 
     void BaseInterface::invalidate(WindowPtr window)
     {
-        WindowContextBase ctx;
+        InterfaceContextBase ctx;
         ctx.extent(window->size());
         apply_viewport(&ctx, window);
         _invalid.include(ctx.extent());
@@ -32,7 +32,7 @@ namespace display
 
     void BaseInterface::invalidate(WindowPtr window, const Rect &rc)
     {
-        WindowContextBase ctx;
+        InterfaceContextBase ctx;
         ctx.extent(Rect(window->size()).intersection(rc));
         apply_viewport(&ctx, window);
         _invalid.include(ctx.extent());
@@ -86,7 +86,7 @@ namespace display
         touchCapture(nullptr);
     }
 
-    void BaseInterface::apply_viewport(WindowContext *context, WindowPtr window)
+    void BaseInterface::apply_viewport(InterfaceContext *context, WindowPtr window)
     {
         WindowPtr walk = window;
         for (WindowPtr parent = walk->parent(); parent; walk = parent, parent = walk->parent())

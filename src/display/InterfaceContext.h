@@ -4,10 +4,10 @@
 
 namespace display
 {
-    class WindowContext
+    class InterfaceContext
     {
     public:
-        virtual ~WindowContext() = default;
+        virtual ~InterfaceContext() = default;
 
         // in display coordinates, the current location of draw coordinates {0, 0}
         virtual const Point &origin() const = 0;
@@ -23,11 +23,11 @@ namespace display
             Rect extent;
         };
 
-        virtual PriorViewport enter_viewport(const Rect &viewport) = 0;
-        virtual void restore_viewport(const PriorViewport &value) = 0;
+        virtual PriorViewport enterViewport(const Rect &viewport) = 0;
+        virtual void restoreViewport(const PriorViewport &value) = 0;
     };
 
-    class WindowContextBase : public WindowContext
+    class InterfaceContextBase : public InterfaceContext
     {
     public:
         const Point &origin() const override { return _origin; }
@@ -37,8 +37,8 @@ namespace display
         const Rect &extent() const override { return _extent; }
         void extent(const Rect &value) override { _extent = value; }
 
-        PriorViewport enter_viewport(const Rect &viewport) override;
-        void restore_viewport(const PriorViewport &prior) override;
+        PriorViewport enterViewport(const Rect &viewport) override;
+        void restoreViewport(const PriorViewport &prior) override;
 
     private:
         Point _origin;

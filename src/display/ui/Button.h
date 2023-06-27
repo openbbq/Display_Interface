@@ -3,13 +3,13 @@
 
 namespace display::ui
 {
-    class Button : public BaseWindow
+    class Button : public WindowBase
     {
     public:
         Button() {}
-        Button(StylePtr style, const String &text = "") : BaseWindow(style), _text(text) {}
-        Button(StylePtr style, StylePtr pressedStyle, const String &text = "") : BaseWindow(style), _pressedStyle(pressedStyle), _text(text) {}
-        Button(StylePtr style, StylePtr pressedStyle, StylePtr toggledStyle, const String &text = "") : BaseWindow(style), _pressedStyle(pressedStyle), _toggledStyle(toggledStyle), _text(text) {}
+        Button(StylePtr style, const String &text = "") : WindowBase(style), _text(text) {}
+        Button(StylePtr style, StylePtr pressedStyle, const String &text = "") : WindowBase(style), _pressedStyle(pressedStyle), _text(text) {}
+        Button(StylePtr style, StylePtr pressedStyle, StylePtr toggledStyle, const String &text = "") : WindowBase(style), _pressedStyle(pressedStyle), _toggledStyle(toggledStyle), _text(text) {}
 
         template <typename... _Args>
         static std::shared_ptr<Button> create(_Args &&...__args) { return std::make_shared<Button>(std::forward<_Args>(__args)...); }
