@@ -110,7 +110,36 @@ namespace display
         Rect indent(const Size &value) const { return indent(value.width(), value.height(), value.width(), value.height()); }
         Rect indent(int16_t left, int16_t top, int16_t right, int16_t bottom) const
         {
-            return Rect(this->left() + left, this->top() + top, this->right() - right, this->bottom() - bottom);
+            return Rect(
+                this->left() + left,
+                this->top() + top,
+                this->right() - right,
+                this->bottom() - bottom);
+        }
+
+        std::pair<Rect, Rect> leftSplit(uint16_t value) const
+        {
+            return std::make_pair(
+                Rect(left(), top(), left() + value, bottom()),
+                Rect(left() + value, top(), right(), bottom()));
+        }
+        std::pair<Rect, Rect> topSplit(uint16_t value) const
+        {
+            return std::make_pair(
+                Rect(left(), top(), right(), top() + value),
+                Rect(left(), top() + value, right(), bottom()));
+        }
+        std::pair<Rect, Rect> rightSplit(uint16_t value) const
+        {
+            return std::make_pair(
+                Rect(right() - value, top(), right(), bottom()),
+                Rect(left(), top(), right() - value, bottom()));
+        }
+        std::pair<Rect, Rect> bottomSplit(uint16_t value) const
+        {
+            return std::make_pair(
+                Rect(left(), bottom() - value, right(), bottom()),
+                Rect(left(), top(), right(), bottom() - value));
         }
 
         bool contains(const Point &value) const
@@ -156,5 +185,20 @@ namespace display
     private:
         Point _origin;
         Size _size;
+    };
+
+    class RoundRect : public Rect
+    {
+    public:
+        RoundRect() {}
+        RoundRect(const Rect &value, int16_t radius) : Rect(value), _radius(radius) {}
+        RoundRect(const Point &origin, const Size &size, int16_t radius) : Rect(origin, size), _radius(radius) {}
+        RoundRect(const Size &size, int16_t radius) : Rect(size), _radius(radius) {}
+        RoundRect(int16_t left, int16_t top, int16_t right, int16_t bottom, int16_t radius) : Rect(left, top, right, bottom), _radius(radius) {}
+
+        int16_t radius() const { return _radius; }
+
+    private:
+        int16_t _radius = 0;
     };
 }

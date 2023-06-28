@@ -1,13 +1,10 @@
 #pragma once
 
-#include "Touch.h"
-#include "DrawContext.h"
 #include "Window.h"
-#include "Region.h"
 
 namespace display
 {
-    class Interface : public Touch
+    class Interface
     {
     public:
         virtual ~Interface() = default;
@@ -20,6 +17,15 @@ namespace display
             return ptr;
         }
 
+        template <typename TDevice, typename... _Args>
+        std::shared_ptr<TDevice> device(_Args &&...__args)
+        {
+            std::shared_ptr<TDevice> ptr = std::make_shared<TDevice>(this, std::forward<_Args>(__args)...);
+            add(ptr);
+            return ptr;
+        }
+
+        virtual void add(std::shared_ptr<LoopHandler> device) = 0;
         virtual void loop() = 0;
 
         virtual WindowPtr screen() const = 0;
@@ -34,12 +40,15 @@ namespace display
         virtual Region invalid() const = 0;
 
         virtual void draw() = 0;
+        virtual std::unique_ptr<DrawContext> createDrawContext() = 0;
 
         virtual WindowPtr touchCapture() const = 0;
         virtual void touchCapture(WindowPtr window) = 0;
-        void touchRelease() { touchCapture(nullptr); }
+        virtual void touchDown(const Point &value) = 0;
+        virtual void touchMove(const Point &value) = 0;
+        virtual void touchUp(const Point &value) = 0;
 
-        virtual std::unique_ptr<DrawContext> createDrawContext() = 0;
+        void touchRelease() { touchCapture(nullptr); }
     };
 
     class BaseInterface : public Interface
@@ -48,6 +57,7 @@ namespace display
         WindowPtr screen() const override { return _screen; }
         void screen(WindowPtr value) override;
 
+        void add(std::shared_ptr<LoopHandler> device) override;
         void loop() override;
 
         void invalidate(const Rect &rc) override;
@@ -59,7 +69,6 @@ namespace display
 
         WindowPtr touchCapture() const override;
         void touchCapture(WindowPtr window) override;
-
         void touchDown(const Point &value) override;
         void touchMove(const Point &value) override;
         void touchUp(const Point &value) override;
@@ -69,6 +78,7 @@ namespace display
 
         Region _invalid;
         WindowPtr _screen;
+        std::vector<std::shared_ptr<LoopHandler>> _devices;
 
         WindowPtr _touchCapture;
         Point _touchInitial;

@@ -4,15 +4,24 @@
 
 namespace display
 {
-
     void BaseInterface::screen(WindowPtr value)
     {
         _screen = value;
         screen()->position(Rect(size()));
     }
 
+    void BaseInterface::add(std::shared_ptr<LoopHandler> device) 
+    {
+        _devices.push_back(device);
+    }
+
     void BaseInterface::loop()
     {
+        log_v("---");
+        for (auto &device : _devices)
+        {
+            device->loopHandler();
+        }
         screen()->loopHandler();
         draw();
     }

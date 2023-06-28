@@ -4,11 +4,11 @@
 
 namespace display::ui
 {
-    class Label : public BaseWindow
+    class Label : public WindowBase
     {
     public:
         Label() {}
-        Label(StylePtr style, const String &text = "", DrawContext::Alignment alignment = DrawContext::TOP_LEFT) : BaseWindow(style), _text(text), _alignment(alignment) {}
+        Label(StylePtr style, const String &text = "", DrawContext::Alignment alignment = DrawContext::TOP_LEFT) : WindowBase(style), _text(text), _alignment(alignment) {}
 
         template <typename... _Args>
         static std::shared_ptr<Label> create(_Args &&...__args) { return std::make_shared<Label>(std::forward<_Args>(__args)...); }

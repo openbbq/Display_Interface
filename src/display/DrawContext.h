@@ -33,6 +33,7 @@ namespace display
         };
 
         virtual void draw(const Rect &rc, Color color) = 0;
+        virtual void draw(const RoundRect &rr, Color color) = 0;
         virtual void draw(Point pt0, Point pt1, Color color) = 0;
         virtual void draw(const Rect &rc, Color background, Color foreground, const FontPtr &font, const String &text, int alignment = TOP_LEFT) = 0;
         virtual Rect measure(const FontPtr &font, const String &text) const = 0;

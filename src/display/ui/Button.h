@@ -42,42 +42,43 @@ namespace display::ui
             dc->exclude(rc);
         }
 
-        bool touchDownHandler(TouchContext *tc) override
+        bool touchDownHandler(TouchContext *ctx) override
         {
-            if (tc->extent().contains(tc->current()))
+            if (ctx->containsCurrent())
             {
-                interface()->touchCapture(shared_from_this());
+                touchCapture(true);
                 return true;
             }
             return false;
         }
 
-        bool touchMoveHandler(TouchContext *tc) override
+        bool touchMoveHandler(TouchContext *ctx) override
         {
-            if (interface()->touchCapture().get() != this)
+            if (!touchCapture())
             {
-                Serial.println("Button::touchMoveHandler but touchCapture() != this");
                 return false;
             }
 
-            bool hit = tc->extent().contains(tc->current());
-            Serial.printf("Button::touchMoveHandler hit %s", hit ? "true" : "false");
+            bool hit = ctx->containsCurrent();
+            log_v("containsCurrent %d", hit);
             pressed(hit);
             return true;
         }
 
-        bool touchUpHandler(TouchContext *tc) override
+        bool touchUpHandler(TouchContext *ctx) override
         {
-            if (interface()->touchCapture().get() != this)
+            if (!touchCapture())
             {
                 return false;
             }
+
+            touchCapture(false);
             if (pressed())
             {
                 pressed(false);
                 toggled(!toggled());
             }
-            interface()->touchCapture(nullptr);
+
             return true;
         }
 

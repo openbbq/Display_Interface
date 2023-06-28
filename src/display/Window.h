@@ -23,7 +23,13 @@ namespace display
 
     typedef std::shared_ptr<Window> WindowPtr;
 
-    class Window : public std::enable_shared_from_this<Window>
+    class LoopHandler
+    {
+    public:
+        virtual void loopHandler() = 0;
+    };
+
+    class Window : public LoopHandler, public std::enable_shared_from_this<Window>
     {
     public:
         virtual ~Window() = default;
@@ -50,6 +56,8 @@ namespace display
 
         virtual const Rect &position() const = 0;
         virtual void position(const Rect &value) = 0;
+
+        void position(Point offset, Size size) { position(Rect(offset, size)); }
 
         virtual Rect content() const = 0;
 
@@ -78,7 +86,8 @@ namespace display
         virtual bool pressed() const = 0;
         virtual void pressed(bool value) = 0;
 
-        // true - resizeHandler must be called in next loop
+        // false - child layout is up to date
+        // true - resizeHandler and child layout called in next
         virtual bool resizing() const = 0;
         virtual void resizing(bool value) = 0;
 
@@ -91,7 +100,6 @@ namespace display
 
         virtual void attachHandler(WindowPtr child) = 0;
         virtual void detachHandler(WindowPtr child) = 0;
-        virtual void loopHandler() = 0;
         virtual void drawHandler(DrawContext *dc) = 0;
         virtual void resizeHandler() = 0;
         virtual Size measureHandler(const Size &available) const = 0;
@@ -261,15 +269,14 @@ namespace display
     public:
         using WindowBase::WindowBase; // inherits constructors
 
+        void attachHandler(WindowPtr child) override;
+        void detachHandler(WindowPtr child) override;
         void loopHandler() override;
         void drawHandler(DrawContext *dc) override;
         bool touchDownHandler(TouchContext *tc) override;
         bool touchMoveHandler(TouchContext *tc) override;
         bool touchUpHandler(TouchContext *tc) override;
 
-    protected:
-        void attachHandler(WindowPtr child) override;
-        void detachHandler(WindowPtr child) override;
         const std::vector<WindowPtr> &children() const { return _children; }
 
     private:
