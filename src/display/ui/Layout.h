@@ -9,9 +9,6 @@ namespace display::ui
     public:
         using ParentWindow::ParentWindow; // inherits constructors
 
-        template <typename... _Args>
-        static std::shared_ptr<Layout> create(_Args &&...__args) { return std::make_shared<Layout>(std::forward<_Args>(__args)...); }
-
         struct Entry
         {
             Entry(int k, int16_t s, WindowPtr p) : kind(k), size(s), window(p) {}
