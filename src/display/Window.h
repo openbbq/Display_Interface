@@ -133,7 +133,15 @@ namespace display
             _pressed = false;
             _resizing = false;
         }
-        WindowBase(StylePtr style) : _style(style) {}
+        WindowBase(StylePtr style) : _style(style)
+        {
+            _hidden = false;
+            _disabled = false;
+            _toggled = false;
+            _focused = false;
+            _pressed = false;
+            _resizing = false;
+        }
 
         Interface *interface() const override;
         void invalidate() override;
