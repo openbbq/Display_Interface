@@ -106,7 +106,7 @@ namespace display
         virtual bool touchDownHandler(TouchContext *tc) = 0;
         virtual bool touchMoveHandler(TouchContext *tc) = 0;
         virtual bool touchUpHandler(TouchContext *tc) = 0;
-        virtual bool clickHandler(const WindowPtr& clicked) = 0;
+        virtual bool clickHandler(const WindowPtr &clicked) = 0;
 
         const Point &origin() const
         {
@@ -124,7 +124,15 @@ namespace display
     class WindowBase : public Window
     {
     public:
-        WindowBase() {}
+        WindowBase()
+        {
+            _hidden = false;
+            _disabled = false;
+            _toggled = false;
+            _focused = false;
+            _pressed = false;
+            _resizing = false;
+        }
         WindowBase(StylePtr style) : _style(style) {}
 
         Interface *interface() const override;
@@ -225,7 +233,8 @@ namespace display
 
         const String &text() const override
         { /*invalid*/
-            return "";
+            static String empty = "";
+            return empty;
         }
         void text(const String &value) override
         { /*invalid*/
@@ -261,12 +270,12 @@ namespace display
         Rect _position;
         StylePtr _style;
 
-        bool _hidden : 1 = false;
-        bool _disabled : 1 = false;
-        bool _toggled : 1 = false;
-        bool _focused : 1 = false;
-        bool _pressed : 1 = false;
-        bool _resizing : 1 = false;
+        bool _hidden : 1;
+        bool _disabled : 1;
+        bool _toggled : 1;
+        bool _focused : 1;
+        bool _pressed : 1;
+        bool _resizing : 1;
     };
 
     class ParentWindow : public WindowBase
