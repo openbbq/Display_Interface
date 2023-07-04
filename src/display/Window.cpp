@@ -86,6 +86,16 @@ namespace display
         }
     }
 
+    bool WindowBase::clickHandler(const WindowPtr &clicked)
+    {
+        WindowPtr ptr = parent();
+        if (ptr)
+        {
+            return ptr->clickHandler(clicked);
+        }
+        return false;
+    }
+
     void ParentWindow::attachHandler(WindowPtr child)
     {
         resizing(true);

@@ -106,8 +106,12 @@ namespace display
         virtual bool touchDownHandler(TouchContext *tc) = 0;
         virtual bool touchMoveHandler(TouchContext *tc) = 0;
         virtual bool touchUpHandler(TouchContext *tc) = 0;
+        virtual bool clickHandler(const WindowPtr& clicked) = 0;
 
-        const Point &origin() const { return position().origin(); }
+        const Point &origin() const
+        {
+            return position().origin();
+        }
         const Size &size() const { return position().size(); }
 
         Color background() const
@@ -242,6 +246,7 @@ namespace display
         bool touchDownHandler(TouchContext *tc) override { return false; }
         bool touchMoveHandler(TouchContext *tc) override { return false; }
         bool touchUpHandler(TouchContext *tc) override { return false; }
+        bool clickHandler(const WindowPtr &clicked) override;
 
     protected:
         void attachHandler(WindowPtr child) override

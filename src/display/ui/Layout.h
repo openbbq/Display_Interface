@@ -39,10 +39,26 @@ namespace display::ui
         void addFill(WindowPtr child) { addEntry(Entry(5, 0, child)); }
 
         template <typename TWindow, typename... _Args>
+        std::shared_ptr<TWindow> addLeft(_Args &&...__args)
+        {
+            auto ptr = std::make_shared<TWindow>(std::forward<_Args>(__args)...);
+            addLeft(ptr);
+            return ptr;
+        }
+
+        template <typename TWindow, typename... _Args>
         std::shared_ptr<TWindow> addTop(_Args &&...__args)
         {
             auto ptr = std::make_shared<TWindow>(std::forward<_Args>(__args)...);
             addTop(ptr);
+            return ptr;
+        }
+        
+        template <typename TWindow, typename... _Args>
+        std::shared_ptr<TWindow> addRight(_Args &&...__args)
+        {
+            auto ptr = std::make_shared<TWindow>(std::forward<_Args>(__args)...);
+            addRight(ptr);
             return ptr;
         }
 

@@ -1,3 +1,4 @@
+#pragma once
 
 #include "../Window.h"
 
@@ -76,7 +77,11 @@ namespace display::ui
             if (pressed())
             {
                 pressed(false);
-                toggled(!toggled());
+                if (!clickHandler(shared_from_this()))
+                {
+                    // click not handled, default to changing toggle state.
+                    toggled(!toggled());
+                }
             }
 
             return true;
@@ -87,4 +92,5 @@ namespace display::ui
         StylePtr _toggledStyle;
         String _text;
     };
+
 }
