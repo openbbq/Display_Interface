@@ -157,7 +157,7 @@ namespace display
 
         for (const Rect &prop : proposed)
         {
-            // Serial.printf("Region::include added %s\n", prop.toString().c_str());
+            log_v("region including %s", prop.c_str());
 
             push_back(prop);
         }
@@ -165,7 +165,7 @@ namespace display
 
     void Region::exclude(const Rect &rc)
     {
-        //log_v("region %s", rc.toString().c_str());
+        // log_v("region %s", rc.toString().c_str());
 
         int index = 0;
         for (int original = this->size(); original; --original) // = this->begin(); original && it != this->end(); --original)
