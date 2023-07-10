@@ -186,4 +186,104 @@ namespace display
         }
         return WindowBase::touchUpHandler(tc);
     }
+
+    void ScrollWindow::attachHandler(WindowPtr child)
+    {
+        WindowBase::attachHandler(child);
+
+        _view = child;
+        resizing(true);
+    }
+
+    void ScrollWindow::detachHandler(WindowPtr child)
+    {
+        WindowBase::detachHandler(child);
+
+        if (_view == child)
+        {
+            _view.reset();
+            invalidate();
+        }
+    }
+
+    void ScrollWindow::resizeHandler()
+    {
+        WindowBase::resizeHandler();
+
+        resizing(true);
+    }
+
+    void ScrollWindow::loopHandler()
+    {
+        WindowBase::loopHandler();
+
+        if (resizing())
+        {
+            if (_view)
+            {
+                // TODO(loudej) measure, offset, and touch for scroll support
+                _view->position(content());
+            }
+            resizing(false);
+        }
+
+        if (_view)
+        {
+            _view->loopHandler();
+        }
+    }
+
+    void ScrollWindow::drawHandler(DrawContext *ctx)
+    {
+        if (_view)
+        {
+            _view->drawHandler(ctx);
+        }
+        WindowBase::drawHandler(ctx);
+    }
+
+    bool ScrollWindow::touchDownHandler(TouchContext *ctx)
+    {
+        if (_view)
+        {
+            auto prior = ctx->enterViewport(_view->position());
+            bool handled = _view->touchDownHandler(ctx);
+            ctx->restoreViewport(prior);
+            if (handled)
+            {
+                return true;
+            }
+        }
+        return WindowBase::touchDownHandler(ctx);
+    }
+
+    bool ScrollWindow::touchMoveHandler(TouchContext *ctx)
+    {
+        if (_view)
+        {
+            auto prior = ctx->enterViewport(_view->position());
+            bool handled = _view->touchMoveHandler(ctx);
+            ctx->restoreViewport(prior);
+            if (handled)
+            {
+                return true;
+            }
+        }
+        return WindowBase::touchMoveHandler(ctx);
+    }
+
+    bool ScrollWindow::touchUpHandler(TouchContext *ctx)
+    {
+        if (_view)
+        {
+            auto prior = ctx->enterViewport(_view->position());
+            bool handled = _view->touchUpHandler(ctx);
+            ctx->restoreViewport(prior);
+            if (handled)
+            {
+                return true;
+            }
+        }
+        return WindowBase::touchUpHandler(ctx);
+    }
 }

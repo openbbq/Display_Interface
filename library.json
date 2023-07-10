@@ -1,0 +1,23 @@
+{
+    "name": "Display_Interface",
+    "version": "0.1.0",
+    "description": "Graphical interface display library.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/openbbq/Display_Interface.git"
+    },
+    "authors": [
+        {
+            "name": "Louis DeJardin",
+            "email": "louis.dejardin@gmail.com",
+            "maintainer": true
+        }
+    ],
+    "dependencies": {
+    },
+    "frameworks": "*",
+    "platforms": "*",
+    "build":{
+        "flags":"-Ithird_party/material-color-utilities"
+    }
+}

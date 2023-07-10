@@ -15,6 +15,9 @@ namespace display::ui
         template <typename... _Args>
         static std::shared_ptr<Button> create(_Args &&...__args) { return std::make_shared<Button>(std::forward<_Args>(__args)...); }
 
+        int id() const override { return _id; }
+        void id(int value) override { _id = value; }
+
         const String &text() const override { return _text; }
         void text(const String &value) override
         {
@@ -90,6 +93,7 @@ namespace display::ui
     private:
         StylePtr _pressedStyle;
         StylePtr _toggledStyle;
+        int _id;
         String _text;
     };
 

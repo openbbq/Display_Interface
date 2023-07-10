@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "Color.h"
+#include "Coords.h"
 
 namespace display
 {

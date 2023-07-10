@@ -51,6 +51,9 @@ namespace display
             return ptr;
         }
 
+        virtual int id() const = 0;
+        virtual void id(int value) = 0;
+
         virtual StylePtr style() const = 0;
         virtual void style(StylePtr value) = 0;
 
@@ -75,6 +78,11 @@ namespace display
         // true - "input" state - toggle is selected, checkbox is marked, two-state button is pressed, nav item is current
         virtual bool toggled() const = 0;
         virtual void toggled(bool value) = 0;
+
+        // false - no effect on appearance/interaction.
+        // true - nav item is current
+        virtual bool activated() const = 0;
+        virtual void activated(bool value) = 0;
 
         // false - no effect on appearance/interaction.
         // true - (unique) visually highlight current "keyboard" input of form, or current item of menu
@@ -117,7 +125,7 @@ namespace display
         Color background() const
         {
             auto s = style();
-            return s ? s->background() : 0;
+            return s ? s->background() : Color();
         }
     };
 
@@ -129,6 +137,7 @@ namespace display
             _hidden = false;
             _disabled = false;
             _toggled = false;
+            _activated = false;
             _focused = false;
             _pressed = false;
             _resizing = false;
@@ -138,6 +147,7 @@ namespace display
             _hidden = false;
             _disabled = false;
             _toggled = false;
+            _activated = false;
             _focused = false;
             _pressed = false;
             _resizing = false;
@@ -149,6 +159,9 @@ namespace display
 
         WindowPtr parent() const override { return _parent.lock(); }
         void parent(WindowPtr value) override;
+
+        int id() const override { return -1; }
+        void id(int value) override {}
 
         virtual StylePtr style() const override { return _style; }
         virtual void style(StylePtr value) override
@@ -211,6 +224,15 @@ namespace display
             if (_toggled != value)
             {
                 _toggled = value;
+                invalidate();
+            }
+        }
+        bool activated() const override { return _activated; }
+        void activated(bool value) override
+        {
+            if (_activated != value)
+            {
+                _activated = value;
                 invalidate();
             }
         }
@@ -281,6 +303,7 @@ namespace display
         bool _hidden : 1;
         bool _disabled : 1;
         bool _toggled : 1;
+        bool _activated : 1;
         bool _focused : 1;
         bool _pressed : 1;
         bool _resizing : 1;
@@ -303,5 +326,23 @@ namespace display
 
     private:
         std::vector<WindowPtr> _children;
+    };
+
+    class ScrollWindow : public WindowBase
+    {
+    public:
+        using WindowBase::WindowBase; // inherits constructors
+
+        void attachHandler(WindowPtr child) override;
+        void detachHandler(WindowPtr child) override;
+        void resizeHandler() override;
+        void loopHandler() override;
+        void drawHandler(DrawContext *dc) override;
+        bool touchDownHandler(TouchContext *tc) override;
+        bool touchMoveHandler(TouchContext *tc) override;
+        bool touchUpHandler(TouchContext *tc) override;
+
+    private:
+        WindowPtr _view;
     };
 }
